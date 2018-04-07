@@ -1,8 +1,5 @@
 package com.pacman.game.units;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
@@ -60,6 +57,8 @@ public abstract class Actor implements Serializable {
         if (Vector2.dst(position.x, position.y, destination.x, destination.y) < 0.001f) {
             switch (direction) {
                 case RIGHT:
+                    if (position.x == gameMap.getMapSizeX()-1) position.x = -1;
+
                     if (gameMap.isCellEmpty((int) position.x + 1, (int) position.y)) {
                         destination.set(position.x + 1, position.y);
                         rotation = 0;
@@ -68,6 +67,8 @@ public abstract class Actor implements Serializable {
                     }
                     break;
                 case LEFT:
+                    if (position.x == 0) position.x = gameMap.getMapSizeX();
+
                     if (gameMap.isCellEmpty((int) position.x - 1, (int) position.y)) {
                         destination.set(position.x - 1, position.y);
                         rotation = 0;

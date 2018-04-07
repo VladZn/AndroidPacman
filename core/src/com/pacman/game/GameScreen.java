@@ -176,49 +176,49 @@ public class GameScreen implements Screen {
             btnLeft.addListener(new ClickListener() {
                 @Override
                 public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                    pacMan.setPrefferedDirection(Actor.Direction.LEFT);
+                    pacMan.setPreferredDirection(Actor.Direction.LEFT);
                     return true;
                 }
 
                 @Override
                 public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-                    pacMan.setPrefferedDirection(Actor.Direction.NONE);
+                    pacMan.setPreferredDirection(Actor.Direction.NONE);
                 }
             });
             btnRight.addListener(new ClickListener() {
                 @Override
                 public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                    pacMan.setPrefferedDirection(Actor.Direction.RIGHT);
+                    pacMan.setPreferredDirection(Actor.Direction.RIGHT);
                     return true;
                 }
 
                 @Override
                 public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-                    pacMan.setPrefferedDirection(Actor.Direction.NONE);
+                    pacMan.setPreferredDirection(Actor.Direction.NONE);
                 }
             });
             btnUp.addListener(new ClickListener() {
                 @Override
                 public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                    pacMan.setPrefferedDirection(Actor.Direction.UP);
+                    pacMan.setPreferredDirection(Actor.Direction.UP);
                     return true;
                 }
 
                 @Override
                 public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-                    pacMan.setPrefferedDirection(Actor.Direction.NONE);
+                    pacMan.setPreferredDirection(Actor.Direction.NONE);
                 }
             });
             btnDown.addListener(new ClickListener() {
                 @Override
                 public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                    pacMan.setPrefferedDirection(Actor.Direction.DOWN);
+                    pacMan.setPreferredDirection(Actor.Direction.DOWN);
                     return true;
                 }
 
                 @Override
                 public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-                    pacMan.setPrefferedDirection(Actor.Direction.NONE);
+                    pacMan.setPreferredDirection(Actor.Direction.NONE);
                 }
             });
         }
@@ -312,6 +312,7 @@ public class GameScreen implements Screen {
                 }
                 if (checkHuntTimer()) {
                     pacMan.addScore(200);
+                    pacMan.addMonstersEaten();
                     monsters[i].resetPosition();
                 }
             }

@@ -3,13 +3,8 @@ package com.pacman.game;
 import com.badlogic.gdx.Gdx;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Writer;
-
-/**
- * Created by FlameXander on 30.03.2018.
- */
 
 public class HighScoreSystem {
     private static String[] names;

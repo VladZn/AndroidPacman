@@ -9,10 +9,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
-/**
- * Created by FlameXander on 02.04.2018.
- */
-
 public class GameSession implements Serializable {
     private PacMan pacMan;
     private GameMap gameMap;

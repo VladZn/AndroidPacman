@@ -17,20 +17,34 @@ public class PacMan extends Actor implements Serializable {
     private int score;
     private int lives;
     private int foodEaten;
+    private int energizersEaten;
+    private int monstersEaten;
     private float safeTime;
     private StringBuilder guiHelper;
-    private Direction prefferedDirection;
+    private Direction preferredDirection;
 
-    public void setPrefferedDirection(Direction prefferedDirection) {
-        this.prefferedDirection = prefferedDirection;
+    public void setPreferredDirection(Direction preferredDirection) {
+        this.preferredDirection = preferredDirection;
     }
 
     public int getFoodEaten() {
         return foodEaten;
     }
 
+    public int getEnergizersEaten() {
+        return energizersEaten;
+    }
+
+    public int getMonstersEaten() {
+        return monstersEaten;
+    }
+
     public void addScore(int amount) {
         score += amount;
+    }
+
+    public void addMonstersEaten() {
+        monstersEaten++;
     }
 
     public int getScore() {
@@ -55,7 +69,7 @@ public class PacMan extends Actor implements Serializable {
     }
 
     public PacMan(GameScreen gameScreen, GameMap gameMap) {
-        this.prefferedDirection = Direction.NONE;
+        this.preferredDirection = Direction.NONE;
         this.gameScreen = gameScreen;
         this.position = gameMap.getUnitPosition('s');
         this.destination = gameMap.getUnitPosition('s');
@@ -67,6 +81,8 @@ public class PacMan extends Actor implements Serializable {
         this.lives = 3;
         this.score = 0;
         this.foodEaten = 0;
+        this.energizersEaten = 0;
+        this.monstersEaten = 0;
         this.guiHelper = new StringBuilder(100);
         this.speed = 3.0f;
         loadResources(gameScreen);
@@ -78,11 +94,13 @@ public class PacMan extends Actor implements Serializable {
             lives = 3;
             score = 0;
             foodEaten = 0;
+            energizersEaten = 0;
+            monstersEaten = 0;
         }
         resetPosition();
         rotation = 0;
         setSafeTime(0);
-        prefferedDirection = Direction.NONE;
+        preferredDirection = Direction.NONE;
     }
 
     @Override
@@ -134,25 +152,25 @@ public class PacMan extends Actor implements Serializable {
             }
             if (gameMap.checkCherryEating(position.x, position.y)) {
                 addScore(100);
-                foodEaten++;
+                energizersEaten++;
                 gameScreen.activateHuntTimer();
             }
             if (Gdx.app.getType() == Application.ApplicationType.Desktop) {
                 if (Gdx.input.isKeyPressed(Input.Keys.D)) {
-                    prefferedDirection = Direction.RIGHT;
+                    preferredDirection = Direction.RIGHT;
                 }
                 if (Gdx.input.isKeyPressed(Input.Keys.A)) {
-                    prefferedDirection = Direction.LEFT;
+                    preferredDirection = Direction.LEFT;
                 }
                 if (Gdx.input.isKeyPressed(Input.Keys.W)) {
-                    prefferedDirection = Direction.UP;
+                    preferredDirection = Direction.UP;
                 }
                 if (Gdx.input.isKeyPressed(Input.Keys.S)) {
-                    prefferedDirection = Direction.DOWN;
+                    preferredDirection = Direction.DOWN;
                 }
             }
-            if (prefferedDirection != Direction.NONE) {
-                move(prefferedDirection, false);
+            if (preferredDirection != Direction.NONE) {
+                move(preferredDirection, false);
             }
         } else {
             tmp.set(destination).sub(position).nor().scl(3 * dt);
@@ -160,7 +178,7 @@ public class PacMan extends Actor implements Serializable {
             if (Vector2.dst(position.x, position.y, destination.x, destination.y) < tmp.len()) {
                 position.set(destination);
                 if (Gdx.app.getType() == Application.ApplicationType.Desktop) {
-                    prefferedDirection = Direction.NONE;
+                    preferredDirection = Direction.NONE;
                 }
             }
         }

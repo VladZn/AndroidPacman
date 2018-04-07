@@ -54,8 +54,8 @@ food
   index: -1
 energizer
   rotate: false
-  xy: 328, 84
-  size: 80, 80
-  orig: 80, 80
+  xy: 164, 330
+  size: 64, 64
+  orig: 64, 64
   offset: 0, 0
   index: -1

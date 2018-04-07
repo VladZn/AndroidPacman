@@ -34,7 +34,9 @@ public class GameOverScreen implements Screen {
         this.pacMan = pacMan;
         this.statisticBuilder.setLength(0);
         this.statisticBuilder.append("Score: ").append(pacMan.getScore()).append("\n")
-                .append("Food eated: ").append(pacMan.getFoodEaten()).append("\n");
+                .append("Food eaten: ").append(pacMan.getFoodEaten()).append("\n")
+                .append("Energizers eaten: ").append(pacMan.getEnergizersEaten()).append("\n")
+                .append("Monsters eaten: ").append(pacMan.getMonstersEaten()).append("\n");
     }
 
     public void setupResults() {

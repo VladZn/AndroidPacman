@@ -10,10 +10,12 @@ import com.badlogic.gdx.math.Vector2;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
-public class GameMap {
+public class GameMap implements Serializable {
     public enum CellType {
         EMPTY('0'), WALL('1'), FOOD('_'), CHERRY('*'), PLAYER('s'), BLUE('b'), PINK('p'),
         RED('r'), ORANGE('o');
@@ -25,21 +27,22 @@ public class GameMap {
         }
     }
 
-    private CellType[][] data;
+    public static final int CELL_SIZE_PX = 80;
+
+    private int level;
+    private int mapSizeX;
+    private int mapSizeY;
     private int foodCount;
-    private TextureRegion textureGround;
-    private TextureRegion textureWall;
-    private TextureRegion textureFood;
-    private TextureRegion textureCherry;
+    private CellType[][] data;
+    private transient TextureRegion textureGround;
+    private transient TextureRegion textureWall;
+    private transient TextureRegion textureFood;
+    private transient TextureRegion textureCherry;
+    private HashMap<Character, Vector2> startPositions;
 
     public int getFoodCount() {
         return foodCount;
     }
-
-    private int mapSizeX;
-    private int mapSizeY;
-
-    public static final int CELL_SIZE_PX = 80;
 
     public int getMapSizeX() {
         return mapSizeX;
@@ -49,14 +52,29 @@ public class GameMap {
         return mapSizeY;
     }
 
-    private HashMap<Character, Vector2> startPositions;
+    public Vector2 getUnitPosition(char unitChar) {
+        return startPositions.get(unitChar).cpy();
+    }
+
+    public int getLevel() {
+        return level;
+    }
+
+    public void setLevel(int level) {
+        this.level = level;
+    }
 
     public GameMap() {
+        level = 1;
+        loadResources();
+        loadMap("map.dat");
+    }
+
+    public void loadResources() {
         textureGround = Assets.getInstance().getAtlas().findRegion("ground");
         textureWall = Assets.getInstance().getAtlas().findRegion("wall");
         textureFood = Assets.getInstance().getAtlas().findRegion("food");
         textureCherry = Assets.getInstance().getAtlas().findRegion("energizer");
-        loadMap("map.dat");
     }
 
     public void loadMap(String name) {
@@ -75,12 +93,16 @@ public class GameMap {
         mapSizeX = list.get(0).length();
         mapSizeY = list.size();
         data = new CellType[mapSizeX][mapSizeY];
+        foodCount = 0;
         for (int y = 0; y < list.size(); y++) {
             for (int x = 0; x < list.get(y).length(); x++) {
                 char currentSymb = list.get(y).charAt(x);
                 for (int i = 0; i < CellType.values().length; i++) {
                     if (currentSymb == CellType.values()[i].datSymbol) {
                         data[x][mapSizeY - y - 1] = CellType.values()[i];
+                        if (CellType.values()[i] == CellType.FOOD) {
+                            foodCount++;
+                        }
                         if (CellType.values()[i] == CellType.PLAYER || CellType.values()[i] == CellType.BLUE || CellType.values()[i] == CellType.PINK || CellType.values()[i] == CellType.RED || CellType.values()[i] == CellType.ORANGE) {
                             startPositions.put(currentSymb, new Vector2(x, mapSizeY - y - 1));
                         }
@@ -89,10 +111,6 @@ public class GameMap {
                 }
             }
         }
-    }
-
-    public Vector2 getUnitPosition(char unitChar) {
-        return startPositions.get(unitChar).cpy();
     }
 
     public void render(SpriteBatch batch) {
@@ -131,5 +149,55 @@ public class GameMap {
             return true;
         }
         return false;
+    }
+
+    public void buildRoute(int srcX, int srcY, int dstX, int dstY, Vector2 destination) {
+        int[][] arr = new int[mapSizeX][mapSizeY];
+        for (int i = 0; i < mapSizeX; i++) {
+            for (int j = 0; j < mapSizeY; j++) {
+                if (data[i][j] == CellType.WALL) {
+                    arr[i][j] = -1;
+                }
+            }
+        }
+        arr[srcX][srcY] = 1;
+        updatePoint(arr, srcX, srcY, 2);
+        int lastPoint = -1;
+        for (int i = 2; i < 45; i++) {
+            for (int x = 0; x < mapSizeX; x++) {
+                for (int y = 0; y < mapSizeY; y++) {
+                    if (arr[x][y] == i) {
+                        updatePoint(arr, x, y, i + 1);
+                    }
+                }
+            }
+            if (arr[dstX][dstY] > 0) {
+                lastPoint = arr[dstX][dstY];
+                break;
+            }
+        }
+        for (int i = 0; i < mapSizeX; i++) {
+            for (int j = 0; j < mapSizeY; j++) {
+                if (arr[i][j] == lastPoint - 1) {
+                    destination.set(i, j);
+                    return;
+                }
+            }
+        }
+    }
+
+    public void updatePoint(int[][] arr, int x, int y, int number) {
+        if (x - 1 > -1 && arr[x - 1][y] == 0) {
+            arr[x - 1][y] = number;
+        }
+        if (x + 1 < mapSizeX && arr[x + 1][y] == 0) {
+            arr[x + 1][y] = number;
+        }
+        if (y + 1 < mapSizeY && arr[x][y + 1] == 0) {
+            arr[x][y + 1] = number;
+        }
+        if (y - 1 > -1 && arr[x][y - 1] == 0) {
+            arr[x][y - 1] = number;
+        }
     }
 }

@@ -10,11 +10,9 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.pacman.game.units.Monster;
-import com.pacman.game.units.PacMan;
 
 public class MyGdxGame extends Game {
-    SpriteBatch batch;
+    private SpriteBatch batch;
 
     @Override
     public void create() {

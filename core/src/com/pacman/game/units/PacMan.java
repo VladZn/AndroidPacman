@@ -1,5 +1,6 @@
 package com.pacman.game.units;
 
+import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -9,12 +10,20 @@ import com.pacman.game.Assets;
 import com.pacman.game.GameMap;
 import com.pacman.game.GameScreen;
 
-public class PacMan extends Actor {
+import java.io.Serializable;
+
+
+public class PacMan extends Actor implements Serializable {
     private int score;
     private int lives;
     private int foodEaten;
     private float safeTime;
     private StringBuilder guiHelper;
+    private Direction prefferedDirection;
+
+    public void setPrefferedDirection(Direction prefferedDirection) {
+        this.prefferedDirection = prefferedDirection;
+    }
 
     public int getFoodEaten() {
         return foodEaten;
@@ -46,10 +55,10 @@ public class PacMan extends Actor {
     }
 
     public PacMan(GameScreen gameScreen, GameMap gameMap) {
+        this.prefferedDirection = Direction.NONE;
         this.gameScreen = gameScreen;
         this.position = gameMap.getUnitPosition('s');
         this.destination = gameMap.getUnitPosition('s');
-        this.textureRegions = Assets.getInstance().getAtlas().findRegion("pacman").split(SIZE, SIZE)[0];
         this.gameMap = gameMap;
         this.animationTimer = 0.0f;
         this.secPerFrame = 0.1f;
@@ -59,6 +68,27 @@ public class PacMan extends Actor {
         this.score = 0;
         this.foodEaten = 0;
         this.guiHelper = new StringBuilder(100);
+        this.speed = 3.0f;
+        loadResources(gameScreen);
+    }
+
+    @Override
+    public void restart(boolean full) {
+        if (full) {
+            lives = 3;
+            score = 0;
+            foodEaten = 0;
+        }
+        resetPosition();
+        rotation = 0;
+        setSafeTime(0);
+        prefferedDirection = Direction.NONE;
+    }
+
+    @Override
+    public void loadResources(GameScreen gameScreen) {
+        this.gameScreen = gameScreen;
+        this.textureRegions = Assets.getInstance().getAtlas().findRegion("pacman").split(SIZE, SIZE)[0];
     }
 
     @Override
@@ -86,13 +116,14 @@ public class PacMan extends Actor {
 
     public void renderGUI(SpriteBatch batch, BitmapFont font) {
         guiHelper.setLength(0);
-        guiHelper.append("Lives: ").append(lives).append("\nScore: ").append(score);
+        guiHelper.append("Level: ").append(gameMap.getLevel()).append("\n").append("Lives: ").append(lives).append("\nScore: ").append(score);
         font.draw(batch, guiHelper, 20, 700);
     }
 
     @Override
     public void update(float dt) {
         super.update(dt);
+
         if (checkSafe()) {
             safeTime -= dt;
         }
@@ -106,24 +137,31 @@ public class PacMan extends Actor {
                 foodEaten++;
                 gameScreen.activateHuntTimer();
             }
-
-            if (Gdx.input.isKeyPressed(Input.Keys.D)) {
-                move(Direction.RIGHT, false);
+            if (Gdx.app.getType() == Application.ApplicationType.Desktop) {
+                if (Gdx.input.isKeyPressed(Input.Keys.D)) {
+                    prefferedDirection = Direction.RIGHT;
+                }
+                if (Gdx.input.isKeyPressed(Input.Keys.A)) {
+                    prefferedDirection = Direction.LEFT;
+                }
+                if (Gdx.input.isKeyPressed(Input.Keys.W)) {
+                    prefferedDirection = Direction.UP;
+                }
+                if (Gdx.input.isKeyPressed(Input.Keys.S)) {
+                    prefferedDirection = Direction.DOWN;
+                }
             }
-            if (Gdx.input.isKeyPressed(Input.Keys.A)) {
-                move(Direction.LEFT, false);
-            }
-            if (Gdx.input.isKeyPressed(Input.Keys.W)) {
-                move(Direction.UP, false);
-            }
-            if (Gdx.input.isKeyPressed(Input.Keys.S)) {
-                move(Direction.DOWN, false);
+            if (prefferedDirection != Direction.NONE) {
+                move(prefferedDirection, false);
             }
         } else {
             tmp.set(destination).sub(position).nor().scl(3 * dt);
             position.add(tmp);
             if (Vector2.dst(position.x, position.y, destination.x, destination.y) < tmp.len()) {
                 position.set(destination);
+                if (Gdx.app.getType() == Application.ApplicationType.Desktop) {
+                    prefferedDirection = Direction.NONE;
+                }
             }
         }
     }

@@ -8,10 +8,14 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.pacman.game.units.PacMan;
 
+
 public class ScreenManager {
     public enum ScreenType {
         MENU, GAME, GAMEOVER
     }
+
+    static final int WORLD_WIDTH = 1280;
+    static final int WORLD_HEIGHT = 720;
 
     private MyGdxGame game;
     private SpriteBatch batch;
@@ -39,8 +43,8 @@ public class ScreenManager {
     public void init(MyGdxGame game, SpriteBatch batch) {
         this.game = game;
         this.batch = batch;
-        this.camera = new OrthographicCamera(1280, 720);
-        this.viewport = new FitViewport(1280, 720, camera);
+        this.camera = new OrthographicCamera(WORLD_WIDTH, WORLD_HEIGHT);
+        this.viewport = new FitViewport(WORLD_WIDTH, WORLD_HEIGHT, camera);
         this.gameScreen = new GameScreen(batch, camera);
         this.menuScreen = new MenuScreen(batch);
         this.loadingScreen = new LoadingScreen(batch);
@@ -53,7 +57,7 @@ public class ScreenManager {
     }
 
     public void resetCamera() {
-        camera.position.set(640, 360, 0);
+        camera.position.set(WORLD_WIDTH / 2, WORLD_HEIGHT / 2, 0);
         camera.update();
         batch.setProjectionMatrix(camera.combined);
     }

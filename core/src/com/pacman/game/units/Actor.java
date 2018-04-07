@@ -9,21 +9,25 @@ import com.badlogic.gdx.math.Vector2;
 import com.pacman.game.GameMap;
 import com.pacman.game.GameScreen;
 
-public abstract class Actor {
+import java.io.Serializable;
+
+
+public abstract class Actor implements Serializable {
     public enum Direction {
-        LEFT, RIGHT, UP, DOWN;
+        LEFT, RIGHT, UP, DOWN, NONE
     }
 
     final int HALF_SIZE = GameScreen.WORLD_CELL_PX / 2;
     final int SIZE = GameScreen.WORLD_CELL_PX;
 
-    GameScreen gameScreen;
-    TextureRegion[] textureRegions;
+    transient GameScreen gameScreen;
+    transient TextureRegion[] textureRegions;
     Vector2 position;
     Vector2 destination;
     GameMap gameMap;
     float animationTimer;
     float secPerFrame;
+    float speed;
     int rotation;
     boolean flipX;
     boolean flipY;
@@ -39,6 +43,12 @@ public abstract class Actor {
 
     public abstract void render(SpriteBatch batch);
 
+    public abstract void loadResources(GameScreen gameScreen);
+
+    public abstract void resetPosition();
+
+    public abstract void restart(boolean full);
+
     public void update(float dt) {
         animationTimer += dt;
         if (animationTimer >= textureRegions.length * secPerFrame) {
@@ -46,46 +56,46 @@ public abstract class Actor {
         }
     }
 
-    public abstract void resetPosition();
-
     public void move(Direction direction, boolean isBot) {
-        switch (direction) {
-            case RIGHT:
-                if (gameMap.isCellEmpty((int) position.x + 1, (int) position.y)) {
-                    destination.set(position.x + 1, position.y);
-                    rotation = 0;
-                    flipX = false;
-                    flipY = false;
-                }
-                break;
-            case LEFT:
-                if (gameMap.isCellEmpty((int) position.x - 1, (int) position.y)) {
-                    destination.set(position.x - 1, position.y);
-                    rotation = 0;
-                    flipX = true;
-                    flipY = false;
-                }
-                break;
-            case UP:
-                if (gameMap.isCellEmpty((int) position.x, (int) position.y + 1)) {
-                    destination.set(position.x, position.y + 1);
-                    if (!isBot) {
-                        rotation = 90;
+        if (Vector2.dst(position.x, position.y, destination.x, destination.y) < 0.001f) {
+            switch (direction) {
+                case RIGHT:
+                    if (gameMap.isCellEmpty((int) position.x + 1, (int) position.y)) {
+                        destination.set(position.x + 1, position.y);
+                        rotation = 0;
                         flipX = false;
                         flipY = false;
                     }
-                }
-                break;
-            case DOWN:
-                if (gameMap.isCellEmpty((int) position.x, (int) position.y - 1)) {
-                    destination.set(position.x, position.y - 1);
-                    if (!isBot) {
-                        rotation = 270;
-                        flipX = false;
-                        flipY = true;
+                    break;
+                case LEFT:
+                    if (gameMap.isCellEmpty((int) position.x - 1, (int) position.y)) {
+                        destination.set(position.x - 1, position.y);
+                        rotation = 0;
+                        flipX = true;
+                        flipY = false;
                     }
-                }
-                break;
+                    break;
+                case UP:
+                    if (gameMap.isCellEmpty((int) position.x, (int) position.y + 1)) {
+                        destination.set(position.x, position.y + 1);
+                        if (!isBot) {
+                            rotation = 90;
+                            flipX = false;
+                            flipY = false;
+                        }
+                    }
+                    break;
+                case DOWN:
+                    if (gameMap.isCellEmpty((int) position.x, (int) position.y - 1)) {
+                        destination.set(position.x, position.y - 1);
+                        if (!isBot) {
+                            rotation = 270;
+                            flipX = false;
+                            flipY = true;
+                        }
+                    }
+                    break;
+            }
         }
     }
 }

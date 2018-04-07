@@ -8,25 +8,51 @@ import com.pacman.game.Assets;
 import com.pacman.game.GameMap;
 import com.pacman.game.GameScreen;
 
-public class Monster extends Actor {
-    PacMan target;
-    int type;
-    char unitChar;
-    TextureRegion[] whiteRegions;
+import java.io.Serializable;
+
+public class Monster extends Actor implements Serializable {
+    private PacMan target;
+    private int type;
+    private char unitChar;
+    transient TextureRegion[] whiteRegions;
+    private Vector2 v; // вектор для гонки за пакманом
 
     public Monster(GameScreen gameScreen, GameMap gameMap, PacMan target, int type, char unitChar) {
         this.gameScreen = gameScreen;
         this.position = gameMap.getUnitPosition(unitChar);
         this.destination = gameMap.getUnitPosition(unitChar);
         this.target = target;
-        this.textureRegions = Assets.getInstance().getAtlas().findRegion("ghosts").split(SIZE, SIZE)[type];
-        this.whiteRegions = Assets.getInstance().getAtlas().findRegion("ghosts").split(SIZE, SIZE)[4];
         this.gameMap = gameMap;
         this.animationTimer = 0.0f;
         this.secPerFrame = 0.1f;
         this.rotation = 0;
         this.tmp = new Vector2(0, 0);
         this.unitChar = unitChar;
+        this.v = new Vector2(-1, -1);
+        this.type = type;
+        this.speed = 2.0f;
+        checkLevel();
+        loadResources(gameScreen);
+    }
+
+    public void checkLevel() {
+        speed = 2.0f + gameMap.getLevel() * 0.05f;
+        if (speed > 3.0f) {
+            speed = 3.0f;
+        }
+    }
+
+    @Override
+    public void restart(boolean full) {
+        resetPosition();
+        checkLevel();
+    }
+
+    @Override
+    public void loadResources(GameScreen gameScreen) {
+        this.gameScreen = gameScreen;
+        this.textureRegions = Assets.getInstance().getAtlas().findRegion("ghosts").split(SIZE, SIZE)[type];
+        this.whiteRegions = Assets.getInstance().getAtlas().findRegion("ghosts").split(SIZE, SIZE)[4];
     }
 
     @Override
@@ -52,9 +78,28 @@ public class Monster extends Actor {
         super.update(dt);
         if (Vector2.dst(position.x, position.y, destination.x, destination.y) < 0.001f) {
             Direction dir = Direction.values()[MathUtils.random(0, 3)];
+            if (Vector2.dst(position.x, position.y, target.getPosition().x, target.getPosition().y) < 8.0f && !gameScreen.checkHuntTimer()) {
+                gameMap.buildRoute((int) target.getPosition().x, (int) target.getPosition().y, (int) position.x, (int) position.y, v);
+                if (v.x < position.x) {
+                    dir = Direction.LEFT;
+                }
+                if (v.x > position.x) {
+                    dir = Direction.RIGHT;
+                }
+                if (v.y < position.y) {
+                    dir = Direction.DOWN;
+                }
+                if (v.y > position.y) {
+                    dir = Direction.UP;
+                }
+            }
             move(dir, true);
+
+//            tmp.set(destination).sub(position).nor().scl(3 * dt);
+//            position.add(tmp);
+
         } else {
-            tmp.set(destination).sub(position).nor().scl(3 * dt);
+            tmp.set(destination).sub(position).nor().scl(speed * dt);
             position.add(tmp);
             if (Vector2.dst(position.x, position.y, destination.x, destination.y) < tmp.len()) {
                 position.set(destination);
